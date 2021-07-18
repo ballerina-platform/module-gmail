@@ -17,6 +17,7 @@
 import ballerina/log;
 import ballerina/uuid;
 import ballerina/http;
+import ballerinax/googleapis.gmail as gmail;
 
 type mapJson map<json>;
 isolated function createTopic(http:Client pubSubClient, string project, string pushEndpoint) 
@@ -218,4 +219,28 @@ isolated function stop(http:Client gmailHttpClient, string userId) returns @tain
     http:Request request = new;
     string stopPath = USER_RESOURCE + userId + STOP;
     http:Response httpResponse = <http:Response> check gmailHttpClient->post(stopPath, request);
+}
+
+isolated function getClient(gmail:GmailConfiguration config) returns http:Client|error {
+    http:ClientSecureSocket? socketConfig = config?.secureSocketConfig;
+    return check new (gmail:BASE_URL, {
+        auth: config.oauthClientConfig,
+        secureSocket: socketConfig
+    });
+}
+
+# Retrieves whether the particular remote method is available.
+#
+# + methodName - Name of the required method
+# + methods - All available methods
+# + return - `true` if method available or else `false`
+isolated function isMethodAvailable(string methodName, string[] methods) returns boolean {
+    boolean isAvailable = methods.indexOf(methodName) is int;
+    if (isAvailable) {
+        var index = methods.indexOf(methodName);
+        if (index is int) {
+            _ = methods.remove(index);
+        }
+    }
+    return isAvailable;
 }

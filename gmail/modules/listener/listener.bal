@@ -19,23 +19,23 @@ import ballerina/log;
 import ballerinax/googleapis.gmail as gmail;
 
 # Listener for Gmail Connector.
-@display {label: "Gmail Listener"} 
+@display {label: "Gmail Listener"}
 public class Listener {
     private string startHistoryId = "";
     private string topicResource = "";
-    private string subscriptionResource = "";    
+    private string subscriptionResource = "";
     private string userId = ME;
-    private gmail:Client gmailClient;
+    private gmail:GmailConfiguration gmailConfig;
     private http:Listener httpListener;
     private string project;
     private string pushEndpoint;
 
-    private WatchRequestBody requestBody={topicName:""};
-    private HttpService httpService;
+    private WatchRequestBody requestBody = {topicName: ""};
+    private HttpService? httpService;
     http:Client pubSubClient;
     http:Client gmailHttpClient;
 
-    public isolated function init(int port, gmail:GmailConfiguration gmailConfig, string project, string pushEndpoint,
+    public isolated function init(int port, gmail:GmailConfiguration gmailConfig, string project, string pushEndpoint, 
                                     GmailListenerConfiguration? listenerConfig = ()) returns @tainted error? {
 
         http:ClientSecureSocket? socketConfig = (listenerConfig is GmailListenerConfiguration) ? (listenerConfig
@@ -45,29 +45,32 @@ public class Listener {
             auth: (listenerConfig is GmailListenerConfiguration) ? (listenerConfig.authConfig) 
                     : (gmailConfig.oauthClientConfig),
             secureSocket: socketConfig
-        }); 
+        });
         // Create gmail http client.
         self.gmailHttpClient = checkpanic new (gmail:BASE_URL, {
             auth: gmailConfig.oauthClientConfig,
             secureSocket: gmailConfig?.secureSocketConfig
-        }); 
+        });
 
         self.httpListener = check new (port);
         //Create gmail connector client.
-        self.gmailClient = new (gmailConfig);     
+        self.gmailConfig = gmailConfig;
         self.project = project;
         self.pushEndpoint = pushEndpoint;
 
-        TopicSubscriptionDetail topicSubscriptionDetail = check createTopic(self.pubSubClient, project, pushEndpoint);        
+        TopicSubscriptionDetail topicSubscriptionDetail = check createTopic(self.pubSubClient, project, pushEndpoint);
         self.topicResource = topicSubscriptionDetail.topicResource;
         self.subscriptionResource = topicSubscriptionDetail.subscriptionResource;
-        self.requestBody = {topicName: self.topicResource, labelIds: [INBOX], labelFilterAction : INCLUDE};
+        self.requestBody = {topicName: self.topicResource, labelIds: [INBOX], labelFilterAction: INCLUDE};
+
+        self.httpService = ();
     }
 
     public isolated function attach(service object {} s, string[]|string? name = ()) returns @tainted error? {
-        self.httpService = new HttpService(s, self.gmailClient, self.startHistoryId, self.subscriptionResource);
+        HttpToGmailAdaptor adaptor = check new (s);
+        self.httpService = new HttpService(adaptor, self.gmailConfig, self.startHistoryId, self.subscriptionResource);
         check self.watchMailbox();
-        check self.httpListener.attach(self.httpService, name);
+        check self.httpListener.attach(<HttpService>self.httpService, name);
         Job job = new (self);
         check job.scheduleNextWatchRenewal();
     }
@@ -93,11 +96,14 @@ public class Listener {
     }
 
     public isolated function watchMailbox() returns @tainted error? {
-        WatchResponse  response = check watch(self.gmailHttpClient, self.userId, self.requestBody);
+        WatchResponse response = check watch(self.gmailHttpClient, self.userId, self.requestBody);
         self.startHistoryId = response.historyId;
         log:printInfo(NEW_HISTORY_ID + self.startHistoryId);
-        self.httpService.startHistoryId = self.startHistoryId;
-    }    
+        HttpService? httpService = self.httpService;
+        if (httpService is HttpService) {
+            httpService.setStartHistoryId(self.startHistoryId);
+        }
+    }
 }
 
 # Holds the parameters used to create a `Client`.
