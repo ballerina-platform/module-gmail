@@ -24,7 +24,7 @@ type mapJson map<json>;
 # Transforms JSON message object into Message Type Object.
 # + sourceMessageJsonObject - `json` message object
 # + return - Returns Message type object
-isolated function convertJSONToMessageType(json sourceMessageJsonObject) returns @tainted Message {
+public isolated function convertJSONToMessageType(json sourceMessageJsonObject) returns @tainted Message {
     Message targetMessageType = {id : EMPTY_STRING, threadId : EMPTY_STRING};
 
     targetMessageType.id = let var id = sourceMessageJsonObject.id in id is string ? id : EMPTY_STRING;
@@ -129,7 +129,7 @@ isolated function convertJSONToMsgBodyType(json sourceMessagePartJsonObject) ret
 # Transforms mail thread JSON object into MailThread type.
 # + sourceThreadJsonObject - `json` message thread object.
 # + return - Returns MailThread type
-isolated function convertJSONToThreadType(json sourceThreadJsonObject) returns @tainted MailThread {
+public isolated function convertJSONToThreadType(json sourceThreadJsonObject) returns @tainted MailThread {
     return {
         id: let var id = sourceThreadJsonObject.id in id is string ? id : EMPTY_STRING,
         historyId: let var historyId = sourceThreadJsonObject.historyId in historyId is string ? historyId : 

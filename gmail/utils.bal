@@ -323,7 +323,7 @@ isolated function handleResponse(http:Response httpResponse) returns @tainted js
 # + key - Key of the form value parameter
 # + value - Value of the form value parameter
 # + return - If successful, returns created request path as an encoded string. Else returns error.
-isolated function appendEncodedURIParameter(string requestPath, string key, string value) returns string|error {
+public isolated function appendEncodedURIParameter(string requestPath, string key, string value) returns string|error {
     var encodedVar = url:encode(value, "UTF-8");
     string encodedString = "";
     string path = "";

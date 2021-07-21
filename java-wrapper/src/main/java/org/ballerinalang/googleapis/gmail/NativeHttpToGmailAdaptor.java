@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.googleapis.gmail;
 
 import io.ballerina.runtime.api.Environment;
@@ -36,39 +37,52 @@ import java.util.ArrayList;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 
-public class HttpNativeOperationHandler {
+public class NativeHttpToGmailAdaptor {
+    public static final String SERVICE_OBJECT = "GMAIL_SERVICE_OBJECT";
 
-    public static Object callOnNewEmail(Environment env, BObject bHttpService, BMap<BString, Object> message) {
-        return invokeRemoteFunction(env, bHttpService, message, "callOnNewEmail", "onNewEmail");
+    public static void externInit(BObject adaptor, BObject service) {
+        adaptor.addNativeData(SERVICE_OBJECT, service);
     }
 
-    public static Object callOnNewThread(Environment env, BObject bHttpService, BMap<BString, Object> message) {
-        return invokeRemoteFunction(env, bHttpService, message, "callOnNewThread", "onNewThread");
+    public static Object callOnNewEmail(Environment env, BObject adaptor, BMap<BString, Object> message) {
+        BObject serviceObj = (BObject) adaptor.getNativeData(SERVICE_OBJECT);
+        return invokeRemoteFunction(env, serviceObj, message, "callOnNewEmail", "onNewEmail");
     }
 
-    public static Object callOnEmailLabelAdded(Environment env, BObject bHttpService, BMap<BString, Object> message) {
-        return invokeRemoteFunction(env, bHttpService, message, "callOnEmailLabelAdded", "onEmailLabelAdded");
+    public static Object callOnNewThread(Environment env, BObject adaptor, BMap<BString, Object> message) {
+        BObject serviceObj = (BObject) adaptor.getNativeData(SERVICE_OBJECT);
+        return invokeRemoteFunction(env, serviceObj, message, "callOnNewThread", "onNewThread");
     }
 
-    public static Object callOnEmailStarred(Environment env, BObject bHttpService, BMap<BString, Object> message) {
-        return invokeRemoteFunction(env, bHttpService, message, "callOnEmailStarred", "onEmailStarred");
+    public static Object callOnEmailLabelAdded(Environment env, BObject adaptor, BMap<BString, Object> message) {
+        BObject serviceObj = (BObject) adaptor.getNativeData(SERVICE_OBJECT);
+        return invokeRemoteFunction(env, serviceObj, message, "callOnEmailLabelAdded", "onEmailLabelAdded");
     }
 
-    public static Object callOnEmailLabelRemoved(Environment env, BObject bHttpService, BMap<BString, Object> message) {
-        return invokeRemoteFunction(env, bHttpService, message, "callOnEmailLabelRemoved", "onEmailLabelRemoved");
+    public static Object callOnEmailStarred(Environment env, BObject adaptor, BMap<BString, Object> message) {
+        BObject serviceObj = (BObject) adaptor.getNativeData(SERVICE_OBJECT);
+        return invokeRemoteFunction(env, serviceObj, message, "callOnEmailStarred", "onEmailStarred");
     }
 
-    public static Object callOnEmailStarRemoved(Environment env, BObject bHttpService, BMap<BString, Object> message) {
-        return invokeRemoteFunction(env, bHttpService, message, "callOnEmailStarRemoved", "onEmailStarRemoved");
+    public static Object callOnEmailLabelRemoved(Environment env, BObject adaptor, BMap<BString, Object> message) {
+        BObject serviceObj = (BObject) adaptor.getNativeData(SERVICE_OBJECT);
+        return invokeRemoteFunction(env, serviceObj, message, "callOnEmailLabelRemoved", "onEmailLabelRemoved");
     }
 
-    public static Object callOnNewAttachment(Environment env, BObject bHttpService, BMap<BString, Object> message) {
-        return invokeRemoteFunction(env, bHttpService, message, "callOnNewAttachment", "onNewAttachment");
+    public static Object callOnEmailStarRemoved(Environment env, BObject adaptor, BMap<BString, Object> message) {
+        BObject serviceObj = (BObject) adaptor.getNativeData(SERVICE_OBJECT);
+        return invokeRemoteFunction(env, serviceObj, message, "callOnEmailStarRemoved", "onEmailStarRemoved");
+    }
+
+    public static Object callOnNewAttachment(Environment env, BObject adaptor, BMap<BString, Object> message) {
+        BObject serviceObj = (BObject) adaptor.getNativeData(SERVICE_OBJECT);
+        return invokeRemoteFunction(env, serviceObj, message, "callOnNewAttachment", "onNewAttachment");
     }    
 
-    public static BArray getServiceMethodNames(BObject bSubscriberService) {
+    public static BArray getServiceMethodNames(BObject adaptor) {
+        BObject serviceObj = (BObject) adaptor.getNativeData(SERVICE_OBJECT);
         ArrayList<BString> methodNamesList = new ArrayList<>();
-        for (MethodType method : bSubscriberService.getType().getMethods()) {
+        for (MethodType method : serviceObj.getType().getMethods()) {
             methodNamesList.add(StringUtils.fromString(method.getName()));
         }
         return ValueCreator.createArrayValue(methodNamesList.toArray(BString[]::new));

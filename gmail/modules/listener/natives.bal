@@ -17,45 +17,54 @@
 import ballerina/jballerina.java;
 import ballerinax/googleapis.gmail as gmail;
 
-isolated function callOnNewEmail(SimpleHttpService httpService, gmail:Message message) returns error?
-    = @java:Method {
-    'class: "org.ballerinalang.googleapis.gmail.HttpNativeOperationHandler"
-} external;
+isolated class HttpToGmailAdaptor {
+    isolated function init(SimpleHttpService serviceObj) returns error? {
+        externInit(self, serviceObj);
+    }
 
-isolated function callOnNewThread(SimpleHttpService httpService, gmail:MailThread thread) returns error?
+    isolated function callOnNewEmail(gmail:Message message) returns error? 
     = @java:Method {
-    'class: "org.ballerinalang.googleapis.gmail.HttpNativeOperationHandler"
-} external;
+        'class: "org.ballerinalang.googleapis.gmail.NativeHttpToGmailAdaptor"
+    } external;
 
-isolated function callOnEmailLabelAdded(SimpleHttpService httpService, ChangedLabel changedLabel) returns error?
+    isolated function callOnNewThread(gmail:MailThread thread) returns error? 
     = @java:Method {
-    'class: "org.ballerinalang.googleapis.gmail.HttpNativeOperationHandler"
-} external;
+        'class: "org.ballerinalang.googleapis.gmail.NativeHttpToGmailAdaptor"
+    } external;
 
-isolated function callOnEmailStarred(SimpleHttpService httpService, gmail:Message message) returns error?
+    isolated function callOnEmailLabelAdded(ChangedLabel changedLabel) returns error? 
     = @java:Method {
-    'class: "org.ballerinalang.googleapis.gmail.HttpNativeOperationHandler"
-} external;
+        'class: "org.ballerinalang.googleapis.gmail.NativeHttpToGmailAdaptor"
+    } external;
 
-isolated function callOnEmailLabelRemoved(SimpleHttpService httpService, ChangedLabel changedLabel) returns error?
+    isolated function callOnEmailStarred(gmail:Message message) returns error? 
     = @java:Method {
-    'class: "org.ballerinalang.googleapis.gmail.HttpNativeOperationHandler"
-} external;
+        'class: "org.ballerinalang.googleapis.gmail.NativeHttpToGmailAdaptor"
+    } external;
 
-isolated function callOnEmailStarRemoved(SimpleHttpService httpService, gmail:Message message) returns error?
+    isolated function callOnEmailLabelRemoved(ChangedLabel changedLabel) returns error? 
     = @java:Method {
-    'class: "org.ballerinalang.googleapis.gmail.HttpNativeOperationHandler"
-} external;
+        'class: "org.ballerinalang.googleapis.gmail.NativeHttpToGmailAdaptor"
+    } external;
 
-isolated function callOnNewAttachment(SimpleHttpService httpService, MailAttachment attachment) returns error?
+    isolated function callOnEmailStarRemoved(gmail:Message message) returns error? 
     = @java:Method {
-    'class: "org.ballerinalang.googleapis.gmail.HttpNativeOperationHandler"
-} external;
+        'class: "org.ballerinalang.googleapis.gmail.NativeHttpToGmailAdaptor"
+    } external;
 
-# Invoke native method to retrive implemented method names in the subscriber service
-#
-# + httpService - current http service
-# + return - {@code string[]} containing the method-names in current implementation
-isolated function getServiceMethodNames(SimpleHttpService httpService) returns string[] = @java:Method {
-    'class: "org.ballerinalang.googleapis.gmail.HttpNativeOperationHandler"
+    isolated function callOnNewAttachment(MailAttachment attachment) returns error? 
+    = @java:Method {
+        'class: "org.ballerinalang.googleapis.gmail.NativeHttpToGmailAdaptor"
+    } external;
+
+    # Invoke native method to retrive implemented method names in the subscriber service
+    #
+    # + return - {@code string[]} containing the method-names in current implementation
+    isolated function getServiceMethodNames() returns string[] = @java:Method {
+        'class: "org.ballerinalang.googleapis.gmail.NativeHttpToGmailAdaptor"
+    } external;
+}
+
+isolated function externInit(HttpToGmailAdaptor adaptor, SimpleHttpService serviceObj) = @java:Method {
+    'class: "org.ballerinalang.googleapis.gmail.NativeHttpToGmailAdaptor"
 } external;

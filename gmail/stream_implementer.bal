@@ -181,7 +181,7 @@ class DraftStream {
     }
 }
 
-class MailboxHistoryStream {
+public class MailboxHistoryStream {
     private History[] currentEntries = [];
     private int index = 0;
     private final http:Client httpClient;
@@ -193,8 +193,8 @@ class MailboxHistoryStream {
     private string? pageToken = ();
 
 
-    isolated function init(http:Client httpClient, string userId, string startHistoryId, string[]? historyTypes,
-                            string? labelId, string? maxResults, string? pageToken) returns error? {
+    public isolated function init(http:Client httpClient, string userId, string startHistoryId, string[]? historyTypes,
+                                    string? labelId, string? maxResults, string? pageToken) returns error? {
         self.httpClient = httpClient;
         self.userEmailId = userId;
         self.startHistoryId = startHistoryId;

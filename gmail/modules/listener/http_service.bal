@@ -18,19 +18,32 @@ import ballerina/http;
 import ballerina/log;
 import ballerinax/googleapis.gmail as gmail;
 
-service class HttpService {
+isolated service class HttpService {
+    private final gmail:GmailConfiguration & readonly gmailConfig;
+    private string startHistoryId;
+    private final string subscriptionResource;
+    private final HttpToGmailAdaptor adaptor;
+    private final Dispatcher dispatcher;
 
-    private gmail:Client gmailClient;
-    public  string startHistoryId = "";
-    private string subscriptionResource;
-    private Dispatcher dispatcher;
-
-    public isolated function init(SimpleHttpService|HttpService httpService, gmail:Client gmailClient, 
-        string historyId, string subscriptionResource) {
-        self.gmailClient = gmailClient;
+    isolated function init(HttpToGmailAdaptor adaptor, gmail:GmailConfiguration config, string historyId, 
+                            string subscriptionResource) {
+        self.adaptor = adaptor;
+        self.gmailConfig = config.cloneReadOnly();
         self.startHistoryId = historyId;
         self.subscriptionResource = subscriptionResource;
-        self.dispatcher = new (httpService, self.gmailClient);
+        self.dispatcher = new (adaptor, self.gmailConfig);
+    }
+
+    public isolated function setStartHistoryId(string startHistoryId) {
+        lock {
+            self.startHistoryId = startHistoryId;
+        }  
+    }
+
+    public isolated function getStartHistoryId() returns string {
+        lock {
+            return self.startHistoryId;
+        }
     }
 
     isolated resource function post mailboxChanges(http:Caller caller, http:Request request) returns @tainted error? {
@@ -38,13 +51,13 @@ service class HttpService {
         string incomingSubscription = check ReqPayload.subscription;
 
         if (self.subscriptionResource === incomingSubscription) {
-            var  mailboxHistoryPage =  self.gmailClient->listHistory(self.startHistoryId);
+            var  mailboxHistoryPage =  self.listHistory(self.getStartHistoryId());
             if (mailboxHistoryPage is stream<gmail:History,error?>) {
                 var history = mailboxHistoryPage.next();
                 while (history is record {| gmail:History value; |}) {
                     check self.dispatcher.dispatch(history.value);
-                    self.startHistoryId =<string> history.value?.historyId;
-                    log:printDebug(NEXT_HISTORY_ID+self.startHistoryId);
+                    self.setStartHistoryId(<string> history.value?.historyId);
+                    log:printDebug(NEXT_HISTORY_ID + self.getStartHistoryId());
                     history = mailboxHistoryPage.next();
                 }
             } else {
@@ -55,4 +68,17 @@ service class HttpService {
         }
         check caller->respond(http:STATUS_OK);
     }
+
+    isolated function listHistory(string startHistoryId, string[]? historyTypes = (), string? labelId = (),
+                                  string? maxResults = (), string? pageToken = (), string? userId = ()) returns @tainted
+                                  stream<gmail:History,error?>|error {
+        string userEmailId = ME; 
+        if (userId is string) {
+            userEmailId = userId;
+        }
+        http:Client httpClient = check getClient(self.gmailConfig);   
+        gmail:MailboxHistoryStream mailboxHistoryStream = check new gmail:MailboxHistoryStream (httpClient, userEmailId,
+                startHistoryId, historyTypes, labelId, maxResults, pageToken);
+        return new stream<gmail:History,error?>(mailboxHistoryStream);
+    }  
 }

@@ -25,13 +25,13 @@ const string OAUTH = "oauth";
 # Holds the value for user resource path.
 const string USER_RESOURCE = "/v1/users/";
 # Holds the value for messages resource path.
-const string MESSAGE_RESOURCE = "/messages";
+public const string MESSAGE_RESOURCE = "/messages";
 # Holds the value for send messages resource.
 const string MESSAGE_SEND_RESOURCE = "/messages/send";
 # Holds the value for attachments resource path.
 const string ATTACHMENT_RESOURCE = "/attachments/";
 # Holds the value for threads resoure path.
-const string THREAD_RESOURCE = "/threads";
+public const string THREAD_RESOURCE = "/threads";
 # Holds the value for profile resource path.
 const string PROFILE_RESOURCE = "/profile";
 # Holds the value for label resource path.
@@ -89,9 +89,9 @@ const string PAGE_TOKEN = "pageToken";
 # Holds the value for optional parameter name 'q'.
 const string QUERY = "q";
 # Holds the value for optional parameter name 'format'.
-const string FORMAT = "format";
+public const string FORMAT = "format";
 # Holds the value for optional parameter name 'metadataHeaders'.
-const string METADATA_HEADERS = "metadataHeaders";
+public const string METADATA_HEADERS = "metadataHeaders";
 # Holds the value for 'historyTypes'.
 const string HISTORY_TYPES = "historyTypes";
 # Holds the value for 'labelId'.
