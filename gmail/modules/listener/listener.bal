@@ -35,6 +35,14 @@ public class Listener {
     http:Client pubSubClient;
     http:Client gmailHttpClient;
 
+    # Initializes the Gmail connector listener.
+    #
+    # + port - Port number to initiate the listener
+    # + gmailConfig - Configurations required to initialize the `gmail:Client` endpoint
+    # + project - The id of the project which is created in `Google Cloud Platform`  to create credentials
+    # + pushEndpoint - The endpoint URL of the listener
+    # + listenerConfig - Configurations required to initialize the `Listener` endpoint with service account
+    # + return - Error if any failures during initialization.
     public isolated function init(int port, gmail:GmailConfiguration gmailConfig, string project, string pushEndpoint,
                                     GmailListenerConfiguration? listenerConfig = ()) returns @tainted error? {
 
@@ -100,7 +108,7 @@ public class Listener {
     }    
 }
 
-# Holds the parameters used to create a `Client`.
+# Holds the parameters used to create a `Listener`.
 #
 # + authConfig - Auth client configuration
 # + secureSocketConfig - Secure socket configuration

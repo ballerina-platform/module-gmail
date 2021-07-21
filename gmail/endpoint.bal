@@ -25,6 +25,9 @@ public client class Client {
     //Here "me" denotes the current authenticated user.
     string userEmailId = ME;
 
+    # Initializes the Gmail connector client.
+    #
+    # + gmailConfig - Configurations required to initialize the `Client` endpoint
     public isolated function init(GmailConfiguration gmailConfig) {
         // Create OAuth2 provider.
         http:ClientSecureSocket? socketConfig = gmailConfig?.secureSocketConfig;

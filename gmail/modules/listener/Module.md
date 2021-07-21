@@ -1,27 +1,15 @@
-# Ballerina Gmail Listener Module
-
-Connects to Gmail Listener using Ballerina.
-
-# Module Overview
+## Overview
+The `ballerinax/googleapis.gmail.listener` is the listener module of Gmail connector.
 
 The Gmail Listener Ballerina Connector provides the capability to listen the push notification for changes to Gmail mailboxes. The Gmail Listener Ballerina Connector supports to listen the changes of Gmail mailboxes such as receiving new message, receiving new thread, adding new label to a message, adding star to a message, removing label to a message, removing star to a message and receiving a new attachment with following trigger methods: `onNewEmail`, `onNewThread`, `onEmailLabelAdded`, `onEmailStarred`, `onEmailLabelRemoved`,`onEmailStarRemoved`, `onNewAttachment`.
 
+This module supports Ballerina Swan Lake Beta2 version.
 
-# Prerequisites:
+## Configuring connector
+### Prerequisites
+- Gmail Account
 
-* Java 11 Installed
-Java Development Kit (JDK) with version 11 is required.
-
-* Download the Ballerina [distribution](https://ballerinalang.org/downloads/)
-Ballerina Swan Lake Alpha 5 is required.
-
-* Instantiate the connector by giving authentication details in the HTTP client config. The HTTP client config has built-in support for BasicAuth and OAuth 2.0. Gmail uses OAuth 2.0 to authenticate and authorize requests. The Gmail connector can be minimally instantiated in the HTTP client config using the client ID, client secret, and refresh token.
-    * Client ID
-    * Client Secret
-    * Refresh Token
-    * Refresh URL
-
-## Obtaining Tokens
+### Obtaining tokens
 
 If you want to use **`Listener`**, then enable `Cloud Pub/Sub API` or user setup service account with pubsub admin role.
 
@@ -36,7 +24,7 @@ If you want to use **`Listener`**, then enable `Cloud Pub/Sub API` or user setup
 If you want to use only Gmail scopes token then you can use service account configurations without  `Cloud Pub/Sub API v1` scope. [Create a service account](https://developers.google.com/identity/protocols/oauth2/service-account#creatinganaccount) with pubsub admin and download the p12 key file.
 8. When you receive your authorization code, click **Exchange authorization code for tokens** to obtain the refresh token.
 
-## Add project configurations file
+- Add project configurations file
 Add the project configuration file by creating a `Config.toml` file under the root path of the project structure.
 This file should have following configurations. Add the token obtained in the previous step to the `Config.toml` file.
 
@@ -49,6 +37,11 @@ port = "enter the port where your listener runs"
 project = "enter your project name"
 pushEndpoint = "Listener endpoint"
 ```
+> **Note :**
+>
+> Here 
+> - `project` is the Id of the project which is created in `Google Cloud Platform`  to create credentials  (`Client Id` and `Client Secret`).
+> - `pushEndpoint` is the endpoint URL of the listener.
 
 Add following configurations if you use service account in the configurations.
 ```
@@ -61,15 +54,10 @@ keyAlias = "key alias name"
 keyPassword = "key password"
 ```
 
-# Compatibility
 
-| Ballerina Language Versions  | Gmail API Version |
-|:----------------------------:|:-----------------:|
-|  Swan Lake Alpha 5           |   v1              |
+## Quickstart
 
-# Quickstart(s):
-
-## Working with Gmail Listener
+### Working with Gmail Listener
 
 #### Step 1: Import Gmail and Gmail Listener Ballerina Library
 First, import the ballerinax/googleapis.gmail and ballerinax/googleapis.gmail.'listener module into the Ballerina project.
@@ -159,78 +147,6 @@ gmailListener:GmailListenerConfiguration listenerConfig = {authConfig: {
 listener gmailListener:Listener gmailEventListener = new(port, gmailConfig,  project, pushEndpoint, listenerConfig);
 ```
 
-# Samples
-
-### On New Email
-
-Triggers when a new e-mail appears in the mail inbox.
-
-```ballerina
-import ballerina/log;
-import ballerinax/googleapis.gmail as gmail;
-import ballerinax/googleapis.gmail.'listener as gmailListener;
-
-configurable string refreshToken = ?;
-configurable string clientId = ?;
-configurable string clientSecret = ?;
-configurable int port = ?;
-configurable string project = ?;
-configurable string pushEndpoint = ?;
-
-gmail:GmailConfiguration gmailConfig = {
-    oauthClientConfig: {
-        refreshUrl: gmail:REFRESH_URL,
-        refreshToken: refreshToken,
-        clientId: clientId,
-        clientSecret: clientSecret
-        }
-};
-
-listener gmailListener:Listener gmailEventListener = new(port, gmailConfig,  project, pushEndpoint);
-
-service / on gmailEventListener {
-   remote function onNewEmail(gmail:Message message) returns error? {
-           log:printInfo("New Email : " , message);
-   }   
-}
-
-```
-
-### On New Labeled Email
-
-Triggers when you label an email.
-
-```ballerina
-import ballerina/log;
-import ballerinax/googleapis.gmail as gmail;
-import ballerinax/googleapis.gmail.'listener as gmailListener;
-
-configurable string refreshToken = ?;
-configurable string clientId = ?;
-configurable string clientSecret = ?;
-configurable int port = ?;
-configurable string project = ?;
-configurable string pushEndpoint = ?;
-
-gmail:GmailConfiguration gmailConfig = {
-    oauthClientConfig: {
-        refreshUrl: gmail:REFRESH_URL,
-        refreshToken: refreshToken,
-        clientId: clientId,
-        clientSecret: clientSecret
-        }
-};
-
-listener gmailListener:Listener gmailEventListener = new(port, gmailConfig,  project, pushEndpoint);
-
-service / on gmailEventListener {
-   remote function onEmailLabelAdded(gmailListener:ChangedLabel changedLabel) returns error? {
-           log:printInfo("Labeled : " , changedLabel);
-   }   
-}
-
-```
-More samples are available at "https://github.com/ballerina-platform/module-ballerinax-googleapis.gmail/tree/master/samples/listener".
 
 > **NOTE:**
 If the user's logic inside any remote method of the connector listener throws an error, connector internal logic will 
@@ -272,3 +188,27 @@ function userLogic(gmail:Message message) returns error? {
     // Write your logic here
 }
 ```
+
+## Snippets
+
+Snippets of some operations.
+
+- Listen a new e-mail appears in the mail inbox.
+
+    ```ballerina
+    remote function onNewEmail(gmail:Message message) returns error? {
+            // Write your logic here
+    }
+    ```
+
+- Listen when an email is labeled.
+
+    ```ballerina
+    remote function onEmailLabelAdded(gmailListener:ChangedLabel changedLabel) returns error? {
+            // Write your logic here
+    }
+
+    ```
+
+### [You can find more samples here](https://github.com/ballerina-platform/module-ballerinax-googleapis.gmail/tree/master/samples/listener)
+
